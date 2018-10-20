@@ -15,12 +15,12 @@ using namespace std;
 // Constants
 
 // Endpoints
-const char* apiPostLog_Start = "/api/log/start";
-const char* apiPostLog_Stop = "/api/log/stop";
-const char* apiGetLog_Fetch = "/api/log/fetch";
-const char* apiPostConfig_LogInterval = "/api/config/loggingInterval";
-const char* apiPostConfig_MaxLogEntries = "/api/config/maxLogEntries";
-const char* apiPostConfig_LocalSeaLevelPressure = "/api/config/localSeaLevelPressure";
+const char *apiPostLog_Start = "/api/log/start";
+const char *apiPostLog_Stop = "/api/log/stop";
+const char *apiGetLog_Fetch = "/api/log/fetch";
+const char *apiPostConfig_LogInterval = "/api/config/loggingInterval";
+const char *apiPostConfig_MaxLogEntries = "/api/config/maxLogEntries";
+const char *apiPostConfig_LocalSeaLevelPressure = "/api/config/localSeaLevelPressure";
 
 const short DATAPIN = 13;
 const short LOG_FETCH_PAGE_SIZE = 50;
@@ -31,8 +31,8 @@ const short STATE_LOGGING = 1;
 
 // Web server shit
 // 192.168.4.1 seems to be the default IP
-const char* ssid = "altimeter";
-const char* password = "derp";
+const char *ssid = "altimeter";
+const char *password = "derp";
 
 ////////////////////////////////////////////////////
 // Global buffers
@@ -40,7 +40,7 @@ const char* password = "derp";
 // Since there's a lot of heap-string operations in here, we allocate these ahead of time to prevent
 // heap fragmentation from affecting these core buffers. The only assumption we're making is that only
 // one web client is connected at a time, otherwise you will get a whole buncha garbage in yo buffers.
-StringBuffer gLogFetchBuf(LOG_FETCH_PAGE_SIZE);
+StringBuffer gLogFetchBuf(LOG_FETCH_PAGE_SIZE * LogEntry::LogStringCharCount);
 StringBuffer gLogEntryBuf(LogEntry::LogStringCharCount);
 
 
@@ -49,7 +49,7 @@ short currentState;
 short loggingInterval;
 short maxLogEntries;
 float localSeaLevelPressure;
-vector<LogEntry*> logEntries;
+vector<LogEntry *> logEntries;
 
 ESP8266WebServer server(80);
 
@@ -148,7 +148,7 @@ void doLogging() {
   // To prevent crashes when we're at the memory ceiling (which we initially tuned before compile time)
   // we will insert a known-stop value as the last log entry with implausible temperature data
   if (logEntries.size() > maxLogEntries - 1) {
-    LogEntry* entry = new LogEntry(millis(), 0, 150, 0);
+    LogEntry *entry = new LogEntry(millis(), 150, 0);
     logEntries.push_back(entry);
     currentState = STATE_IDLE;
     return;    
@@ -160,7 +160,7 @@ void doLogging() {
     float temperature = 2;
     float altitude = 1;    
 
-    LogEntry* entry = new LogEntry(millis(), pressure, temperature, altitude);
+    LogEntry *entry = new LogEntry(millis(), temperature, altitude);
     logEntries.push_back(entry);
 
     nextLogTime = millis() + loggingInterval;

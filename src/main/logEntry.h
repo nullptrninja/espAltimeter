@@ -7,19 +7,19 @@ class LogEntry {
   public:    
     static const short LogStringCharCount = 50;    
     
-    LogEntry(unsigned int time, int pressure, float temperature, float altitude)
-      : TimeStamp(time), Pressure(pressure), Temperature(temperature), Altitude(altitude)
+    LogEntry(unsigned int time, /*int pressure,*/ float temperature, float altitude)
+      : TimeStamp(time), /*Pressure(pressure),*/ Temperature(temperature), Altitude(altitude)
     {}
 
     // Public fields. Yolo.
     unsigned int TimeStamp;   // Millis
-    int Pressure;             // Pascals
+    //int Pressure;             // Pascals
     float Temperature;        // Centigrade
     float Altitude;           // Meters
     
     short renderStringToBuffer() {
       String strTime = String(TimeStamp);
-      String strPress = String(Pressure);
+      //String strPress = String(Pressure);
       String strTemp = String(Temperature);
       String strAlt = String(Altitude);
 
@@ -29,8 +29,8 @@ class LogEntry {
       gLogEntryBuf.clear();
       gLogEntryBuf.append(strTime.c_str());
       gLogEntryBuf.append(',');
-      gLogEntryBuf.append(strPress.c_str());
-      gLogEntryBuf.append(',');
+      //gLogEntryBuf.append(strPress.c_str());
+      //gLogEntryBuf.append(',');
       gLogEntryBuf.append(strTemp.c_str());
       gLogEntryBuf.append(',');
       gLogEntryBuf.append(strAlt.c_str());

@@ -26,13 +26,11 @@ class StringBuffer {
     }
 
     // Appends the null terminated string to the buffer.
-    void append(const char* pStr) {
-      int sLen = strlen(pStr);      
-      int copyLen = min(mLen - 1 - mOffset, sLen);
-
-      // Note the mLen - 1 above, allow room for the null terminator
-      strncpy(mpBuffer + mOffset, pStr, copyLen);
-      mOffset += copyLen;      
+    // No bounds check done here, don't mess this up.
+    void append(const char *pStr) {
+      int sLen = strlen(pStr);
+      strncpy(mpBuffer + mOffset, pStr, sLen);
+      mOffset += sLen;
     }
 
     char* c_str() {
@@ -44,7 +42,7 @@ class StringBuffer {
     }
 
   private:
-    char* mpBuffer;
+    char *mpBuffer;
     int mLen;
     int mOffset;
 };
