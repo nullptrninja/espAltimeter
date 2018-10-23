@@ -1,0 +1,235 @@
+{
+	"info": {
+		"name": "Altimeter API v1",
+		"_postman_id": "51c412f7-5226-4389-9c3d-81fe35012a8b",
+		"description": "For use with rocket altimeter v1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Root (Get Status)",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						""
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Live",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/live",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"live"
+					]
+				},
+				"description": "Gets live sensor reading"
+			},
+			"response": []
+		},
+		{
+			"name": "Log/Fetch",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/log/fetch?page=0",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"log",
+						"fetch"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "0",
+							"equals": true
+						}
+					]
+				},
+				"description": "Gets all the logs that the device has collected. You must call api/log/stop first before collecting."
+			},
+			"response": []
+		},
+		{
+			"name": "Log/Start",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/log/start",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"log",
+						"start"
+					]
+				},
+				"description": "Begins logging data from the sensor at the specified loggingIntervals (ms). Previous log data is cleared before this happens."
+			},
+			"response": []
+		},
+		{
+			"name": "Log/Stop",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/log/stop",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"log",
+						"stop"
+					]
+				},
+				"description": "Stops the data logging. Call api/log/fetch afterwards to retrieve the data"
+			},
+			"response": []
+		},
+		{
+			"name": "Config/LoggingInterval",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/config/loggingInterval?value=200",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"config",
+						"loggingInterval"
+					],
+					"query": [
+						{
+							"key": "value",
+							"value": "200",
+							"equals": true
+						}
+					]
+				},
+				"description": "Sets the Logging Interval in milliseconds\n\nUse query parameters\nvalue=INT"
+			},
+			"response": []
+		},
+		{
+			"name": "Config/LocalSeaLevelPressure",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/config/localSeaLevelPressure?value=1012.99",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"config",
+						"localSeaLevelPressure"
+					],
+					"query": [
+						{
+							"key": "value",
+							"value": "1012.99",
+							"equals": true
+						}
+					]
+				},
+				"description": "Sets the Local Sea Level Pressure in hPa/mbar\n\nUse query parameters\nvalue=FLOAT"
+			},
+			"response": []
+		},
+		{
+			"name": "Config/MaxLogEntries",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {},
+				"url": {
+					"raw": "http://192.168.4.1/api/config/maxLogEntries?value=3000",
+					"protocol": "http",
+					"host": [
+						"192",
+						"168",
+						"4",
+						"1"
+					],
+					"path": [
+						"api",
+						"config",
+						"maxLogEntries"
+					],
+					"query": [
+						{
+							"key": "value",
+							"value": "3000",
+							"equals": true
+						}
+					]
+				},
+				"description": "Sets the maximum number of log entries\n\nUse query parameters\nvalue=INT"
+			},
+			"response": []
+		}
+	]
+}
