@@ -6,6 +6,11 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 
+#include <Wire.h>
+#include <SPI.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
+
 #include "logEntry.h"
 #include "stringBuffer.h"
 
@@ -18,19 +23,25 @@ using namespace std;
 const char *apiPostLog_Start = "/api/log/start";
 const char *apiPostLog_Stop = "/api/log/stop";
 const char *apiGetLog_Fetch = "/api/log/fetch";
+const char *apiGetState_Live = "/api/live";
 const char *apiPostConfig_LogInterval = "/api/config/loggingInterval";
 const char *apiPostConfig_MaxLogEntries = "/api/config/maxLogEntries";
 const char *apiPostConfig_LocalSeaLevelPressure = "/api/config/localSeaLevelPressure";
 
-const short DATAPIN = 13;
+// BMP PINS
+#define BMP_SCK 13
+#define BMP_MISO 12
+#define BMP_MOSI 11
+#define BMP_CS 10
+
 const short LOG_FETCH_PAGE_SIZE = 50;
 
 const short STATE_IDLE = 0;
 const short STATE_LOGGING = 1;
 ////////////////////////////////////////////////////
 
-// Web server shit
-// 192.168.4.1 seems to be the default IP
+// Web server shit. This may or may not apply depending on if your ESP8266 has been already
+// configured or has a blank configuration.
 const char *ssid = "altimeter";
 const char *password = "derp";
 
@@ -49,17 +60,16 @@ short currentState;
 short loggingInterval;
 short maxLogEntries;
 float localSeaLevelPressure;
+unsigned int timeOffset;            // Used to log out in t-0 format
 vector<LogEntry *> logEntries;
+
+bool bmpSensorOk;
+Adafruit_BMP280 bmpSensor;      // In I2C mode
 
 ESP8266WebServer server(80);
 
 ///////////////////////////////////////////////
 // Utility
-
-// This is only when we don't have a neo pixel attached
-void setLedPin(bool on) {
-  digitalWrite(DATAPIN, on ? HIGH : LOW);
-}
 
 void resetLogs() {
   for (int i = 0; i < logEntries.size(); i++) {
@@ -70,6 +80,24 @@ void resetLogs() {
   logEntries.clear();
 }
 
+bool waitForBmpSensor() {
+  unsigned int nextCheckTime = millis();
+  int attempts = 10;
+  while (attempts > 0) {    
+    if (!bmpSensor.begin()) {
+      nextCheckTime = millis() + 500;
+      attempts--;
+      
+      // Wait a bit and try again
+      while (millis() < nextCheckTime);
+    }
+    else {
+      return true;
+    }
+  }
+
+  return false;
+}
 ///////////////////////////////////////////////
 
 ///////////////////////////////////////////////
@@ -77,7 +105,16 @@ void resetLogs() {
 void handleRoot() {
   String response = String("State: ") + String(currentState) +
                     String("\r\nLogSize: ") + String(logEntries.size()) +
-                    String("\r\nSea Level hPa: ") + String(localSeaLevelPressure);
+                    String("\r\nSea Level hPa: ") + String(localSeaLevelPressure) +
+                    String("\r\nBMP Sensor: ") + String(bmpSensorOk ? "OK" : "FAIL");
+
+  server.send(200, "text/html", response);
+}
+
+void apiHandleGetLive() {
+  String response = String("Time (ms): ") + String(millis() - timeOffset) +
+                    String("\r\nTemperature (C): ") + String(bmpSensor.readTemperature()) +
+                    String("\r\nAltitude (m): ") + String(bmpSensor.readAltitude(localSeaLevelPressure));
 
   server.send(200, "text/html", response);
 }
@@ -85,13 +122,12 @@ void handleRoot() {
 void apiHandlePostLogStart() {
   resetLogs();
   currentState = STATE_LOGGING;
-  setLedPin(true);
+  timeOffset = millis();
   server.send(200, "text/html", "Log cleared\r\nLog started");
 }
 
 void apiHandlePostLogStop() {
-  currentState = STATE_IDLE;
-  setLedPin(false);
+  currentState = STATE_IDLE;  
   server.send(200, "text/html", "Logging stopped");
 }
 
@@ -155,12 +191,11 @@ void doLogging() {
   }
   
   if (millis() >= nextLogTime) {
-    // Capture and log data from sensor
-    int pressure = 1;
-    float temperature = 2;
-    float altitude = 1;    
+    // Capture and log data from sensor    
+    float temperature = bmpSensor.readTemperature();
+    float altitude = bmpSensor.readAltitude(localSeaLevelPressure);
 
-    LogEntry *entry = new LogEntry(millis(), temperature, altitude);
+    LogEntry *entry = new LogEntry(millis() - timeOffset, temperature, altitude);
     logEntries.push_back(entry);
 
     nextLogTime = millis() + loggingInterval;
@@ -168,11 +203,7 @@ void doLogging() {
 }
 
 ////////////////////////////////////////////
-void setup() {
-  // Configure pins
-  pinMode(DATAPIN, OUTPUT);
-
-  delay(1000);
+void setup() {  
   Serial.begin(115200);
 
   WiFi.softAP(ssid, password);
@@ -195,25 +226,34 @@ void setup() {
   server.on(apiPostConfig_MaxLogEntries, HTTP_POST, apiHandlePostConfigMaxLogEntries);
   server.on(apiPostConfig_LocalSeaLevelPressure, HTTP_POST, apiHandlePostConfigLocalSeaLevelPressure);
 
+  // Misc
+  server.on(apiGetState_Live, HTTP_GET, apiHandleGetLive);
+
   ////////////////////////////////////////////
   
   server.begin();
 
   currentState = STATE_IDLE;
   loggingInterval = 200;
-  maxLogEntries = 3000;         // This will need adjusting as the final mem footprint is known
+  maxLogEntries = 1700;         // On an Adafruit Huzzah ESP8266 board this is our safe-limit
   localSeaLevelPressure = 1000; // This is just some default value, you NEED to calibrate this on flight-day to hPa pressure at sea level
+  
+  // Start sensor  
+  bmpSensorOk = waitForBmpSensor();
 }
 
 void loop() {
   server.handleClient();
   
-  switch (currentState) {
+  switch (currentState) {    
     case STATE_IDLE:
+      // NOOP
       break;
       
     case STATE_LOGGING:
       doLogging();
       break;
+
+    // Other states here if needed
   }
 }

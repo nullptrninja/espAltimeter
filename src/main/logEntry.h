@@ -2,10 +2,10 @@
 
 extern StringBuffer gLogEntryBuf;
 
-// A single data log entry. Note that ToString() accesses a global buffer so don't fuck this up.
+// A single data log entry. Note that renderStringToBuffer() accesses a global buffer so don't fuck this up.
 class LogEntry {  
   public:    
-    static const short LogStringCharCount = 50;    
+    static const short LogStringCharCount = 30;    
     
     LogEntry(unsigned int time, /*int pressure,*/ float temperature, float altitude)
       : TimeStamp(time), /*Pressure(pressure),*/ Temperature(temperature), Altitude(altitude)
