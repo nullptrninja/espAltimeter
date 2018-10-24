@@ -123,7 +123,7 @@ void apiHandlePostLogStart() {
   resetLogs();
   currentState = STATE_LOGGING;
   timeOffset = millis();
-  server.send(200, "text/html", "Log cleared\r\nLog started");
+  server.send(200, "text/html", "Logging started");
 }
 
 void apiHandlePostLogStop() {

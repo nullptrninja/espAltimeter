@@ -22,7 +22,8 @@ class StringBuffer {
 
     // Appends a non-terminated single char to the buffer
     void append(const char c) {
-      append(new char[2] { c, '\0' });
+      mpBuffer[mOffset] = c;
+      mOffset++;
     }
 
     // Appends the null terminated string to the buffer.

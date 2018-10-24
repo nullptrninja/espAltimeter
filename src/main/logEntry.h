@@ -18,10 +18,10 @@ class LogEntry {
     float Altitude;           // Meters
     
     short renderStringToBuffer() {
-      String strTime = String(TimeStamp);
-      //String strPress = String(Pressure);
-      String strTemp = String(Temperature);
-      String strAlt = String(Altitude);
+      String strTime(TimeStamp);
+      //String strPress(Pressure);
+      String strTemp(Temperature);
+      String strAlt(Altitude);
 
       // Log entries are specifically hardcoded to write to the global entry buffer
       // under the very specific assumption that only one web client is connected to
