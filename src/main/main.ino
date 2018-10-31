@@ -235,7 +235,7 @@ void setup() {
 
   currentState = STATE_IDLE;
   loggingInterval = 200;
-  maxLogEntries = 1700;         // On an Adafruit Huzzah ESP8266 board this is our safe-limit
+  maxLogEntries = 1900;         // On an Adafruit Huzzah ESP8266 board this is our safe-limit
   localSeaLevelPressure = 1000; // This is just some default value, you NEED to calibrate this on flight-day to hPa pressure at sea level
   
   // Start sensor  
